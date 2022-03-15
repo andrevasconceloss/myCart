@@ -1,6 +1,6 @@
 package br.dev.vasconcelos.mycart.validation;
 
-import br.dev.vasconcelos.mycart.validation.constraintvalidation.NotEmptyListValidator;
+import br.dev.vasconcelos.mycart.validation.constraintvalidation.UniqueConstraintValidator;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
@@ -11,9 +11,9 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-@Constraint(validatedBy = NotEmptyListValidator.class)
-public @interface NotEmptyList {
-    String message() default "The list cannot be empty.";
+@Constraint(validatedBy = UniqueConstraintValidator.class)
+public @interface UniqueContraint {
+    String message() default "Record already exists";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

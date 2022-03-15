@@ -20,7 +20,7 @@ public class UserProfile {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "user_name", length = 100)
+    @Column(name = "username", length = 100)
     private String name;
 
     @Column(name = "email", length = 120, unique = true)

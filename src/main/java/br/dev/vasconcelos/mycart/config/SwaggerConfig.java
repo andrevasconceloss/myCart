@@ -42,7 +42,9 @@ public class SwaggerConfig {
     }
 
     private Contact contact() {
-        return new Contact("André Vasconcelos", "https://www.vasconcelos.dev.br", "andre.ovasconceloss@gmail.com");
+        return new Contact("André Vasconcelos",
+                             "https://www.vasconcelos.dev.br",
+                           "andre.ovasconceloss@gmail.com");
     }
 
     private ApiKey apiKey() {
