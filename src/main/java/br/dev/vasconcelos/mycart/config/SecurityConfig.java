@@ -49,12 +49,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .authorizeRequests()
 
-                    /** Users **/
-                    .antMatchers(HttpMethod.POST,"/api/user/**")
-                    .permitAll()
+                /** Users **/
+                .antMatchers(HttpMethod.POST,"/api/user/**")
+                .permitAll()
 
-                    /** Others **/
-                    .anyRequest().authenticated()
+                /** Others **/
+                .anyRequest().authenticated()
 
                 .and()
                     /** Session policy */

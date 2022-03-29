@@ -1,5 +1,6 @@
 package br.dev.vasconcelos.mycart.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,6 +28,7 @@ public class UserProfile {
     private String email;
 
     @Column(name = "user_password")
+    @JsonIgnore
     private String password;
 
     @Column(name = "created_at")

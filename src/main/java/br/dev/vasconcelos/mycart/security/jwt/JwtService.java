@@ -1,6 +1,6 @@
 package br.dev.vasconcelos.mycart.security.jwt;
 
-import br.dev.vasconcelos.mycart.domain.entity.UserProfile;
+import br.dev.vasconcelos.mycart.rest.dto.CredencialsDTO;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -22,7 +22,7 @@ public class JwtService {
     @Value("${security.jwt.signing-key}")
     private String signingKey;
 
-    public String tokenGenerate(UserProfile user){
+    public String tokenGenerate(CredencialsDTO dto){
         long expString = Long.valueOf(expiration);
         LocalDateTime dateTime = LocalDateTime.now().plusMinutes(expString);
         Instant instant = dateTime.atZone(ZoneId.systemDefault()).toInstant();
@@ -30,7 +30,7 @@ public class JwtService {
 
         return Jwts
                 .builder()
-                .setSubject(user.getEmail())
+                .setSubject(dto.getEmail())
                 .setExpiration(expirationDate)
                 .signWith(SignatureAlgorithm.HS512, signingKey)
                 .compact();
@@ -59,17 +59,4 @@ public class JwtService {
     public String getUserEmail(String token) throws ExpiredJwtException {
         return (String)  getClaims(token).getSubject();
     }
-
-//    public static void main(String[] args){
-//        ConfigurableApplicationContext context = SpringApplication.run(VendasApplication.class);
-//        JwtService service = context.getBean(JwtService.class);
-//        Usuario usuario = Usuario.builder().login("andreFilho").build();
-//        String token = service.gerarToken(usuario);
-//        System.out.println(token);
-//
-//        boolean isTokenValido = service.tokenValido(token);
-//        System.out.println("Token válido: " + isTokenValido);
-//
-//        System.out.println(service.obterLoginUsuario(token));
-//    }
 }

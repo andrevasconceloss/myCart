@@ -1,6 +1,9 @@
 package br.dev.vasconcelos.mycart.rest.controller;
 
 import br.dev.vasconcelos.mycart.exception.BusinessRulesException;
+import br.dev.vasconcelos.mycart.exception.InvalidPasswordException;
+import br.dev.vasconcelos.mycart.exception.UniqueConstraintException;
+import br.dev.vasconcelos.mycart.exception.UserNotFoundException;
 import br.dev.vasconcelos.mycart.rest.ApiErrors;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -16,7 +19,25 @@ public class ApplicationControllerAdvice {
 
     @ExceptionHandler(BusinessRulesException.class)
     @ResponseStatus(BAD_REQUEST)
-    public ApiErrors handleRegraNegocioException(BusinessRulesException ex){
+    public ApiErrors handleBusinessRulesException(BusinessRulesException ex){
+        return new ApiErrors(ex.getMessage());
+    }
+
+    @ExceptionHandler(InvalidPasswordException.class)
+    @ResponseStatus(BAD_REQUEST)
+    public ApiErrors handleInvalidPasswordException(InvalidPasswordException ex){
+        return new ApiErrors(ex.getMessage());
+    }
+
+    @ExceptionHandler(UniqueConstraintException.class)
+    @ResponseStatus(BAD_REQUEST)
+    public ApiErrors handleUniqueConstraintException(UniqueConstraintException ex){
+        return new ApiErrors(ex.getMessage());
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    @ResponseStatus(BAD_REQUEST)
+    public ApiErrors handleUserNotFoundException(UserNotFoundException ex){
         return new ApiErrors(ex.getMessage());
     }
 

@@ -3,10 +3,10 @@ package br.dev.vasconcelos.mycart.rest.controller;
 import br.dev.vasconcelos.mycart.domain.entity.UserProfile;
 import br.dev.vasconcelos.mycart.exception.InvalidPasswordException;
 import br.dev.vasconcelos.mycart.exception.UniqueConstraintException;
+import br.dev.vasconcelos.mycart.exception.UserNotFoundException;
 import br.dev.vasconcelos.mycart.rest.dto.CredencialsDTO;
 import br.dev.vasconcelos.mycart.rest.dto.TokenDTO;
-import br.dev.vasconcelos.mycart.rest.dto.UserInsertDTO;
-import br.dev.vasconcelos.mycart.rest.dto.UserReturnDTO;
+import br.dev.vasconcelos.mycart.rest.dto.UserDTO;
 import br.dev.vasconcelos.mycart.security.jwt.JwtService;
 import br.dev.vasconcelos.mycart.service.impl.UserServiceImpl;
 import io.swagger.annotations.Api;
@@ -21,18 +21,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
-
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.util.List;
 
 import static org.springframework.http.HttpStatus.*;
 
 @RestController
-@RequestMapping(
-        value= "/api/user",
-        produces = {"application/json","application/xml"},
-        consumes = {"application/json","application/xml"}
-)
+@RequestMapping(value= "/api/user")
 @RequiredArgsConstructor
 @Api("User routes")
 public class UserController {
@@ -41,7 +35,10 @@ public class UserController {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
-    @PostMapping
+    @PostMapping(
+            produces = {"application/json"},
+            consumes = {"application/json"}
+    )
     @ResponseStatus(CREATED)
     @ApiOperation("Create a new user")
     @ApiResponses({
@@ -49,34 +46,54 @@ public class UserController {
             @ApiResponse(code = 401, message = "Unauthorized"),
             @ApiResponse(code = 403, message = "Forbidden")
     })
-    public UserReturnDTO save(@RequestBody @Valid UserInsertDTO userDTO) {
+    public UserProfile save(@RequestBody @Valid UserDTO userDTO) {
         try {
-            UserProfile userProfile = UserProfile
-                                            .builder()
-                                            .name(userDTO.getName())
-                                            .password(userDTO.getPassword())
-                                            .email(userDTO.getEmail())
-                                            .build();
-
-            String encriptedPassword = passwordEncoder.encode(userProfile.getPassword());
-            LocalDateTime now = LocalDateTime.now().atZone(ZoneId.systemDefault()).toLocalDateTime();
-
-            userProfile.setPassword(encriptedPassword);
-            userProfile.setActive(true);
-            userProfile.setCreatedAt(now);
-            userProfile.setUpdatedAt(now);
-            userService.salvar(userProfile);
-
-            return new UserReturnDTO(
-                        userProfile.getId(),
-                        userProfile.isActive(),
-                        userProfile.getName(),
-                        userProfile.getEmail(),
-                        userProfile.getCreatedAt(),
-                        userProfile.getUpdatedAt()
-                    );
+            userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+            return userService.save(userDTO);
         } catch (UniqueConstraintException e) {
             throw new ResponseStatusException(UNAUTHORIZED);
+        } catch (UserNotFoundException e) {
+            throw new ResponseStatusException(INTERNAL_SERVER_ERROR);
+        } catch (Exception e) {
+            throw new ResponseStatusException(INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping(value = "/{id}", produces = {"application/json"})
+    @ResponseStatus(OK)
+    @ApiOperation("Find user by id")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 401, message = "Unauthorized"),
+            @ApiResponse(code = 403, message = "Forbidden"),
+            @ApiResponse(code = 404, message = "Not found")
+    })
+    public UserProfile find(@PathVariable("id") Integer id){
+        try {
+            return userService.findById(id);
+        } catch (UserNotFoundException e) {
+            throw new ResponseStatusException(INTERNAL_SERVER_ERROR);
+        } catch (Exception e) {
+            throw new ResponseStatusException(INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping(produces = {"application/json"})
+    @ResponseStatus(OK)
+    @ApiOperation("Find user with filter")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 401, message = "Unauthorized"),
+            @ApiResponse(code = 403, message = "Forbidden"),
+            @ApiResponse(code = 404, message = "Not found")
+    })
+    public List<UserProfile> find( UserProfile filter ) {
+        try {
+            return userService.find(filter);
+        } catch (UserNotFoundException e) {
+            throw new ResponseStatusException(INTERNAL_SERVER_ERROR);
+        } catch (Exception e) {
+            throw new ResponseStatusException(INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -86,20 +103,32 @@ public class UserController {
     @ApiResponses({
             @ApiResponse(code = 201, message = "User authenticated"),
             @ApiResponse(code = 401, message = "Unauthorized"),
-            @ApiResponse(code = 403, message = "Forbidden")
+            @ApiResponse(code = 403, message = "Forbidden"),
+            @ApiResponse(code = 404, message = "Not found")
     })
-    public TokenDTO authenticate(@RequestBody CredencialsDTO credenciais){
+    public TokenDTO authenticate(@RequestBody CredencialsDTO dto){
         try {
-            UserProfile user = UserProfile
-                                .builder()
-                                .email(credenciais.getEmail())
-                                .password(credenciais.getPassword())
-                                .build();
-            UserDetails userAuthenticated = userService.autenticar(user);
-            String token = jwtService.tokenGenerate(user);
-            return new TokenDTO(user.getEmail(), token);
+            UserDetails userAuthenticated = userService.auth(dto);
+            String token = jwtService.tokenGenerate(dto);
+            return new TokenDTO(dto.getEmail(), token);
         } catch (UsernameNotFoundException | InvalidPasswordException e) {
             throw new ResponseStatusException(UNAUTHORIZED);
+        } catch (Exception e) {
+            throw new ResponseStatusException(INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @PostMapping("/token")
+    @ResponseStatus(OK)
+    @ApiOperation("Validate user token")
+    @ApiResponses({
+            @ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 401, message = "Unauthorized"),
+            @ApiResponse(code = 403, message = "Forbidden"),
+            @ApiResponse(code = 404, message = "Not found")
+    })
+    public Boolean tokenValidate(@RequestBody TokenDTO dto){
+        String token = dto.getToken();
+        return jwtService.tokenValidate(token);
     }
 }
