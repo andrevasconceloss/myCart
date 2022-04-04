@@ -3,7 +3,7 @@ package br.dev.vasconcelos.mycart.service.impl;
 import br.dev.vasconcelos.mycart.domain.entity.UserProfile;
 import br.dev.vasconcelos.mycart.domain.repository.UserProfileRepository;
 import br.dev.vasconcelos.mycart.exception.InvalidPasswordException;
-import br.dev.vasconcelos.mycart.exception.UserNotFoundException;
+import br.dev.vasconcelos.mycart.exception.NotFoundException;
 import br.dev.vasconcelos.mycart.rest.dto.CredencialsDTO;
 import br.dev.vasconcelos.mycart.rest.dto.UserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +33,7 @@ public class UserServiceImpl implements UserDetailsService {
     private EntityManager entityManager;
 
     @Transactional
-    public UserProfile save(UserDTO dto) throws UserNotFoundException {
+    public UserProfile save(UserDTO dto) throws NotFoundException {
         entityManager
                 .createNativeQuery(" " +
                         " INSERT INTO USER_PROFILE ( " +
@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserDetailsService {
 
         UserProfile user = repository
                 .findByEmail(dto.getEmail())
-                .orElseThrow(() -> new UserNotFoundException());
+                .orElseThrow(() -> new NotFoundException());
 
         return user;
     }

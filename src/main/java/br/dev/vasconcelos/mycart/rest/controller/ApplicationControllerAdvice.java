@@ -3,7 +3,7 @@ package br.dev.vasconcelos.mycart.rest.controller;
 import br.dev.vasconcelos.mycart.exception.BusinessRulesException;
 import br.dev.vasconcelos.mycart.exception.InvalidPasswordException;
 import br.dev.vasconcelos.mycart.exception.UniqueConstraintException;
-import br.dev.vasconcelos.mycart.exception.UserNotFoundException;
+import br.dev.vasconcelos.mycart.exception.NotFoundException;
 import br.dev.vasconcelos.mycart.rest.ApiErrors;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -35,9 +35,9 @@ public class ApplicationControllerAdvice {
         return new ApiErrors(ex.getMessage());
     }
 
-    @ExceptionHandler(UserNotFoundException.class)
+    @ExceptionHandler(NotFoundException.class)
     @ResponseStatus(BAD_REQUEST)
-    public ApiErrors handleUserNotFoundException(UserNotFoundException ex){
+    public ApiErrors handleUserNotFoundException(NotFoundException ex){
         return new ApiErrors(ex.getMessage());
     }
 

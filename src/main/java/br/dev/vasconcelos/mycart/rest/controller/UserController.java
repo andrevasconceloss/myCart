@@ -3,7 +3,7 @@ package br.dev.vasconcelos.mycart.rest.controller;
 import br.dev.vasconcelos.mycart.domain.entity.UserProfile;
 import br.dev.vasconcelos.mycart.exception.InvalidPasswordException;
 import br.dev.vasconcelos.mycart.exception.UniqueConstraintException;
-import br.dev.vasconcelos.mycart.exception.UserNotFoundException;
+import br.dev.vasconcelos.mycart.exception.NotFoundException;
 import br.dev.vasconcelos.mycart.rest.dto.CredencialsDTO;
 import br.dev.vasconcelos.mycart.rest.dto.TokenDTO;
 import br.dev.vasconcelos.mycart.rest.dto.UserDTO;
@@ -52,7 +52,7 @@ public class UserController {
             return userService.save(userDTO);
         } catch (UniqueConstraintException e) {
             throw new ResponseStatusException(UNAUTHORIZED);
-        } catch (UserNotFoundException e) {
+        } catch (NotFoundException e) {
             throw new ResponseStatusException(INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
             throw new ResponseStatusException(INTERNAL_SERVER_ERROR);
@@ -71,7 +71,7 @@ public class UserController {
     public UserProfile find(@PathVariable("id") Integer id){
         try {
             return userService.findById(id);
-        } catch (UserNotFoundException e) {
+        } catch (NotFoundException e) {
             throw new ResponseStatusException(INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
             throw new ResponseStatusException(INTERNAL_SERVER_ERROR);
@@ -90,7 +90,7 @@ public class UserController {
     public List<UserProfile> find( UserProfile filter ) {
         try {
             return userService.find(filter);
-        } catch (UserNotFoundException e) {
+        } catch (NotFoundException e) {
             throw new ResponseStatusException(INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
             throw new ResponseStatusException(INTERNAL_SERVER_ERROR);
