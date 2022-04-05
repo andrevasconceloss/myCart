@@ -1,6 +1,6 @@
 package br.dev.vasconcelos.mycart.rest.dto;
 
-import br.dev.vasconcelos.mycart.validation.UniqueContraint;
+import br.dev.vasconcelos.mycart.validation.CategoryFK;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,16 +15,19 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductDTO {
-    @Column(length = 13)
     private String ean;
 
     @Column(length = 100)
-    @NotEmpty(message = "{ean_field_required}")
-    private String description;
+    @NotEmpty(message = "{name_field_invalid}")
+    private String name;
 
     @Column(precision = 20, scale = 2)
     private BigDecimal price;
 
-    @Column
     private byte[] image;
+
+    @CategoryFK
+    private Integer categoryId;
+
+    private boolean active;
 }

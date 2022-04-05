@@ -3,7 +3,6 @@ package br.dev.vasconcelos.mycart.service.impl;
 import br.dev.vasconcelos.mycart.domain.entity.UserProfile;
 import br.dev.vasconcelos.mycart.domain.repository.UserProfileRepository;
 import br.dev.vasconcelos.mycart.exception.InvalidPasswordException;
-import br.dev.vasconcelos.mycart.exception.NotFoundException;
 import br.dev.vasconcelos.mycart.rest.dto.CredencialsDTO;
 import br.dev.vasconcelos.mycart.rest.dto.UserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +16,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
 import java.util.List;
 
 @Service
@@ -29,28 +27,16 @@ public class UserServiceImpl implements UserDetailsService {
     @Autowired
     private UserProfileRepository repository;
 
-    @Autowired
-    private EntityManager entityManager;
-
     @Transactional
-    public UserProfile save(UserDTO dto) throws NotFoundException {
-        entityManager
-                .createNativeQuery(" " +
-                        " INSERT INTO USER_PROFILE ( " +
-                        "   USERNAME, EMAIL, USER_PASSWORD " +
-                        " ) VALUES ( " +
-                        "   ?, ?, ? " +
-                        " )")
-                .setParameter(1, dto.getName())
-                .setParameter(2, dto.getEmail())
-                .setParameter(3, dto.getPassword())
-                .executeUpdate();
-
-        UserProfile user = repository
-                .findByEmail(dto.getEmail())
-                .orElseThrow(() -> new NotFoundException());
-
-        return user;
+    public UserProfile save(UserDTO dto) {
+        return repository.save(
+                UserProfile.builder()
+                        .name(dto.getName())
+                        .email(dto.getEmail())
+                        .password(dto.getPassword())
+                        .active(dto.isActive())
+                        .build()
+        );
     }
 
     public UserDetails auth(CredencialsDTO dto){
@@ -79,7 +65,7 @@ public class UserServiceImpl implements UserDetailsService {
         return repository.findAll(example);
     }
 
-    public UserDetails loadUserByEmail(String email) throws UsernameNotFoundException {
+    public UserDetails loadUserByEmail(String email) {
         UserProfile user = repository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found!"));
 
@@ -94,7 +80,7 @@ public class UserServiceImpl implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) {
         UserProfile user = repository.findByName(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found!"));
 

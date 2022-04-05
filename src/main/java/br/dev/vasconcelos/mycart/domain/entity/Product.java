@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -16,7 +18,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Product {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -36,10 +37,12 @@ public class Product {
     @Column(name = "category_id")
     private Integer categoryId;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", insertable = false, updatable = false)
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", insertable = false, updatable = false)
+    @UpdateTimestamp
     private LocalDateTime updatedAt;
 
     @Column(name = "product_active")

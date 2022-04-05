@@ -2,6 +2,10 @@ package br.dev.vasconcelos.mycart.exception;
 
 public class NotFoundException extends RuntimeException {
     public NotFoundException() {
-        super("User not found!");
+        super("Not found!");
+    }
+
+    public NotFoundException(String message) {
+        super(message);
     }
 }

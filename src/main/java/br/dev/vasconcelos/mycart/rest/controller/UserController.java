@@ -31,14 +31,11 @@ import static org.springframework.http.HttpStatus.*;
 @Api("User routes")
 public class UserController {
 
-    private final UserServiceImpl userService;
+    private final UserServiceImpl service;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
-    @PostMapping(
-            produces = {"application/json"},
-            consumes = {"application/json"}
-    )
+    @PostMapping(produces = {"application/json"}, consumes = {"application/json"})
     @ResponseStatus(CREATED)
     @ApiOperation("Create a new user")
     @ApiResponses({
@@ -49,7 +46,7 @@ public class UserController {
     public UserProfile save(@RequestBody @Valid UserDTO userDTO) {
         try {
             userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-            return userService.save(userDTO);
+            return service.save(userDTO);
         } catch (UniqueConstraintException e) {
             throw new ResponseStatusException(UNAUTHORIZED);
         } catch (NotFoundException e) {
@@ -66,13 +63,14 @@ public class UserController {
             @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 401, message = "Unauthorized"),
             @ApiResponse(code = 403, message = "Forbidden"),
-            @ApiResponse(code = 404, message = "Not found")
+            @ApiResponse(code = 404, message = "Not found"),
+            @ApiResponse(code = 500, message = "Internal Server Error")
     })
     public UserProfile find(@PathVariable("id") Integer id){
         try {
-            return userService.findById(id);
+            return service.findById(id);
         } catch (NotFoundException e) {
-            throw new ResponseStatusException(INTERNAL_SERVER_ERROR);
+            throw new ResponseStatusException(NOT_FOUND);
         } catch (Exception e) {
             throw new ResponseStatusException(INTERNAL_SERVER_ERROR);
         }
@@ -85,13 +83,14 @@ public class UserController {
             @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 401, message = "Unauthorized"),
             @ApiResponse(code = 403, message = "Forbidden"),
-            @ApiResponse(code = 404, message = "Not found")
+            @ApiResponse(code = 404, message = "Not found"),
+            @ApiResponse(code = 500, message = "Internal Server Error")
     })
     public List<UserProfile> find( UserProfile filter ) {
         try {
-            return userService.find(filter);
+            return service.find(filter);
         } catch (NotFoundException e) {
-            throw new ResponseStatusException(INTERNAL_SERVER_ERROR);
+            throw new ResponseStatusException(NOT_FOUND);
         } catch (Exception e) {
             throw new ResponseStatusException(INTERNAL_SERVER_ERROR);
         }
@@ -104,14 +103,17 @@ public class UserController {
             @ApiResponse(code = 201, message = "User authenticated"),
             @ApiResponse(code = 401, message = "Unauthorized"),
             @ApiResponse(code = 403, message = "Forbidden"),
-            @ApiResponse(code = 404, message = "Not found")
+            @ApiResponse(code = 404, message = "Not found"),
+            @ApiResponse(code = 500, message = "Internal Server Error")
     })
-    public TokenDTO authenticate(@RequestBody CredencialsDTO dto){
+    public TokenDTO authenticate(@RequestBody @Valid CredencialsDTO dto){
         try {
-            UserDetails userAuthenticated = userService.auth(dto);
+            UserDetails userAuthenticated = service.auth(dto);
             String token = jwtService.tokenGenerate(dto);
             return new TokenDTO(dto.getEmail(), token);
-        } catch (UsernameNotFoundException | InvalidPasswordException e) {
+        } catch (UsernameNotFoundException e) {
+            throw new ResponseStatusException(NOT_FOUND);
+        } catch (InvalidPasswordException e) {
             throw new ResponseStatusException(UNAUTHORIZED);
         } catch (Exception e) {
             throw new ResponseStatusException(INTERNAL_SERVER_ERROR);
@@ -125,10 +127,15 @@ public class UserController {
             @ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 401, message = "Unauthorized"),
             @ApiResponse(code = 403, message = "Forbidden"),
-            @ApiResponse(code = 404, message = "Not found")
+            @ApiResponse(code = 404, message = "Not found"),
+            @ApiResponse(code = 500, message = "Internal Server Error")
     })
-    public Boolean tokenValidate(@RequestBody TokenDTO dto){
-        String token = dto.getToken();
-        return jwtService.tokenValidate(token);
+    public Boolean tokenValidate(@RequestBody @Valid TokenDTO dto){
+        try {
+            String token = dto.getToken();
+            return jwtService.tokenValidate(token);
+        } catch (Exception e) {
+            throw new ResponseStatusException(INTERNAL_SERVER_ERROR);
+        }
     }
 }

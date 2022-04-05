@@ -1,6 +1,6 @@
 package br.dev.vasconcelos.mycart.rest.dto;
 
-import br.dev.vasconcelos.mycart.validation.UniqueContraint;
+import br.dev.vasconcelos.mycart.validation.EmailUniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,9 +20,11 @@ public class UserDTO {
 
     @Column(length = 120, unique = true)
     @NotEmpty(message = "{email_field_required}")
-    @UniqueContraint(message = "{user_already_exists}")
+    @EmailUniqueConstraint(message = "{user_already_exists}")
     private String email;
 
     @NotEmpty(message = "{password_field_required}")
     private String password;
+
+    private boolean active;
 }

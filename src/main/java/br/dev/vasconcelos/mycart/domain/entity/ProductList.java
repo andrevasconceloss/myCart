@@ -15,7 +15,6 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductList {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
