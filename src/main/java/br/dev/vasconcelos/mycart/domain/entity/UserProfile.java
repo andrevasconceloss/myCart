@@ -33,6 +33,10 @@ public class UserProfile {
     @JsonIgnore
     private String password;
 
+    @Column(name = "roles")
+    @JsonIgnore
+    private String roles;
+
     @Column(name = "created_at", insertable = false, updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;

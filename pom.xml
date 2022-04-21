@@ -14,7 +14,7 @@
 	<name>mycart</name>
 	<description>Project backend from app my cart</description>
 	<properties>
-		<java.version>1.8</java.version>
+		<java.version>17.0.2</java.version>
 	</properties>
 	<dependencies>
 
@@ -56,7 +56,6 @@
 			<artifactId>mysql-connector-java</artifactId>
 		</dependency>
 
-		<!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt -->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt</artifactId>

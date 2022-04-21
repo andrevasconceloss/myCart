@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserDetailsService {
@@ -39,7 +40,7 @@ public class UserServiceImpl implements UserDetailsService {
         );
     }
 
-    public UserDetails auth(CredencialsDTO dto){
+    public UserDetails auth(CredencialsDTO dto) throws InvalidPasswordException {
         UserDetails user = loadUserByEmail(dto.getEmail());
         boolean isValidPassword = encoder.matches(dto.getPassword(), user.getPassword());
 
@@ -65,36 +66,32 @@ public class UserServiceImpl implements UserDetailsService {
         return repository.findAll(example);
     }
 
-    public UserDetails loadUserByEmail(String email) {
+    public UserDetails loadUserByEmail(String email) throws UsernameNotFoundException {
         UserProfile user = repository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found!"));
-
-        String[] roles = new String[]{"ADMIN", "USER"};
 
         return User
                 .builder()
                 .username(user.getEmail())
                 .password(user.getPassword())
-                .roles(roles)
+                .roles(user.getRoles().split(","))
                 .build();
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) {
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserProfile user = repository.findByName(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found!"));
-
-        String[] roles = new String[]{"ADMIN", "USER"};
 
         return User
                 .builder()
                 .username(user.getEmail())
                 .password(user.getPassword())
-                .roles(roles)
+                .roles(user.getRoles().split(","))
                 .build();
     }
 
-    public UserProfile findById(Integer id) {
+    public UserProfile findById(Integer id) throws UsernameNotFoundException {
         UserProfile user = repository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found!"));
 
